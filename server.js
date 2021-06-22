@@ -28,7 +28,7 @@ const firstQuestion = () => {
                 viewAllEmployees()
                 break;
             case "View departments":
-                viewADepartments()
+                viewDepartments()
                 break;
             case "View roles":
                 viewRoles()
@@ -57,7 +57,7 @@ const firstQuestion = () => {
             case "Delete department":
                 deleteDepartment()
                 break;
-            case "I am finished":
+            case "Exit.":
                 endConnection()
                 break;
             default:
@@ -77,13 +77,29 @@ const viewAllEmployees = () => {
             firstQuestion();
         } else {
             console.table(res);
+            firstQuestion();
         }
     });
-
-   
     
 }
 
+const viewDepartments = () => {
+    const query =  connection.query('SELECT * FROM department', (err, res) => {
+        if (err) throw err; 
+            console.table(res);
+            firstQuestion();
+    });
+    
+}
+
+const viewRoles = () => {
+    const query =  connection.query('SELECT * FROM roles', (err, res) => {
+        if (err) throw err; 
+            console.table(res);
+            firstQuestion();
+    });
+    
+}
 
 connection.connect((err) => {
     if (err) throw err;
