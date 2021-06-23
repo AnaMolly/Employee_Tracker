@@ -17,7 +17,7 @@ const initialQuestion = [
         type: 'list',
         message: 'What would like to do?',
         name: 'initialq',
-        choices: ['View all employees', 'View departments', 'View roles', 'Add a department','Add a role','Add an employee', 'Update employee role','Exit']
+        choices: ['View all employees', 'View departments', 'View roles', 'Add a department','Add a role','Add an employee', 'Update employee role', 'Delete employee', 'Exit']
     }
 ]
 const firstQuestion = () => {
@@ -44,6 +44,9 @@ const firstQuestion = () => {
                 break;
             case "Update employee role":
                 updateEmployeeRole()
+                break;
+            case "Delete employee":
+                deleteEmployee()
                 break;
             case "Exit":
                 connection.end()
@@ -90,6 +93,7 @@ const viewRoles = () => {
 }
 
 function employeeQuestions(roles){
+
     const employeeQ = [
         {
             type: 'input',
@@ -105,19 +109,21 @@ function employeeQuestions(roles){
             type: 'list',
             message: "What is the employee's role?",
             name: 'role',
-            choices: roles.map(role => 
-                ({name:role.title,
-                    value:role.id}))
-            }
+            choices: roles.map(role => ({name:role.title, value:role.id}))
+        }
         ]
+        
     return employeeQ
 } 
 function addEmManager (managers) {
+    const managerChoices= managers.map(manager => ({name:manager.full_name, value:manager.id}))
+    const managerChoice=[...managerChoices,{name:'None',value:null}]
+
         const emManager = [{
             type: 'list',
             message: "Who is the employee's manager?",
             name: 'empManager',
-            choices: managers.map(manager => ({name:manager.full_name, value:manager.id}))
+            choices: managerChoice
         }]
         return emManager
 }
@@ -153,6 +159,7 @@ const addEmployee = () => {
 )}
 
 function roleQuestions(departments) {
+
     const roleDepartments = [
         {
             type: 'input',
@@ -166,7 +173,7 @@ function roleQuestions(departments) {
         },
     {
         type: 'list',
-        message: "Who is department does this role fall under?",
+        message: "What department does this role fall under?",
         name: 'roledepart',
         choices: departments.map(department => ({name:department.department_name, value:department.id}))
     }]
@@ -174,7 +181,7 @@ function roleQuestions(departments) {
 }
 
 const addRole = () => {
-    connection.query('SELECT * FROM employeeDB.role', (err,departments) => {
+    connection.query('SELECT * FROM employeeDB.department', (err,departments) => {
         let roleDepartments = roleQuestions(departments)
         inquirer.prompt(roleDepartments)
         .then((answers)=>{
@@ -218,6 +225,58 @@ const addDepartment = () => {
 })
 
 }
+
+function updateEQuestion1 (employees) {
+    updateEQ = [
+        {
+            type: 'list',
+            message: "Which employee would you like to update?",
+            name: 'employee',
+            choices: employees.map(employee => ({name:employee.full_name, value:employee.id}))
+        }
+    ]
+    return updateEQ
+}
+function updateEQuestion2 (roles) {
+    updateEQ2 = [
+        {
+            type: 'list',
+            message: "What is the employee's new role?",
+            name: 'newrole',
+            choices: roles.map(role => ({name:role.title, value:role.id}))
+        }
+    ]
+    return updateEQ2
+}
+
+const updateEmployeeRole = () => {
+    connection.query ('SELECT employee.id, concat(employee.first_name, " " ,  employee.last_name) AS full_name FROM employee', (err, employees) => {
+    let updateEQ = updateEQuestion1(employees)
+        inquirer.prompt(updateEQ)
+        .then((answers) => {
+            let employeeAns = answers 
+            console.log(employeeAns)
+            connection.query('SELECT * FROM employeeDB.roles', (err,roles) => {
+            let updateEQ2 = updateEQuestion2 (roles)
+            inquirer.prompt(updateEQ2)
+            .then((answers)=> {
+                console.log(answers)
+                connection.query('UPDATE employee SET ? WHERE ?', [
+                    { roles_id: answers.newrole
+                },{
+                    id: employeeAns.employee} ],
+                (err,res) => {
+                    if (err) throw err;
+                    console.log('Employee updated!')
+                    firstQuestion()
+                })
+
+            })
+        })
+    })
+})
+}
+
 
 connection.connect((err) => {
     if (err) throw err;
