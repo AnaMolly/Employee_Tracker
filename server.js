@@ -32,7 +32,7 @@ const firstQuestion = () => {
                 break;
             case "View roles":
                 viewRoles()
-                break;ß
+                break;
             case "Add a department":
                 addDepartment()
                 break;
@@ -61,13 +61,18 @@ const firstQuestion = () => {
 
 const viewAllEmployees = () => {
     const query =  connection.query('SELECT * FROM employee', (err, res) => {
+
         if (err) throw err; 
         
         if(!res[0]){   
+
             console.log("You must enter an employee first.")
+
             firstQuestion();
         } else {
+
             console.table(res);
+
             firstQuestion();
         }
     });
@@ -77,7 +82,9 @@ const viewAllEmployees = () => {
 const viewDepartments = () => {
     const query =  connection.query('SELECT * FROM department', (err, res) => {
         if (err) throw err; 
+
             console.table(res);
+
             firstQuestion();
     });
     
@@ -85,8 +92,11 @@ const viewDepartments = () => {
 
 const viewRoles = () => {
     const query =  connection.query('SELECT * FROM roles', (err, res) => {
+
         if (err) throw err; 
+
             console.table(res);
+
             firstQuestion();
     });
     
@@ -117,6 +127,7 @@ function employeeQuestions(roles){
 } 
 function addEmManager (managers) {
     const managerChoices= managers.map(manager => ({name:manager.full_name, value:manager.id}))
+
     const managerChoice=[...managerChoices,{name:'None',value:null}]
 
         const emManager = [{
@@ -131,15 +142,21 @@ function addEmManager (managers) {
 const addEmployee = () => {
 
     connection.query('SELECT * FROM employeeDB.roles', (err,roles) => {
+
         const employeeQ = employeeQuestions(roles)
 
             inquirer. prompt(employeeQ)
+
             .then((answers)=> {
+
                 let emQAnswers = answers
 
                 connection.query ('SELECT employee.id, concat(employee.first_name, " " ,  employee.last_name) AS full_name FROM employee', (err, managers) => {
+                
                 let emManager = addEmManager(managers)
+
                 inquirer.prompt(emManager)
+
                 .then((answers) => {connection.query ('INSERT INTO employee SET ?', 
                 {
                     first_name: emQAnswers.firstname,
@@ -148,8 +165,11 @@ const addEmployee = () => {
                     manager_id: answers.empManager
                 },
                 (err, res) => {
+
                     if (err) throw err;
+
                     console.log("Employee added!");
+
                     firstQuestion()
             })   
             })
@@ -182,9 +202,13 @@ function roleQuestions(departments) {
 
 const addRole = () => {
     connection.query('SELECT * FROM employeeDB.department', (err,departments) => {
+
         let roleDepartments = roleQuestions(departments)
+
         inquirer.prompt(roleDepartments)
+
         .then((answers)=>{
+
             connection.query ('INSERT INTO roles SET ?', 
         {
             title: answers.rolename,
@@ -192,8 +216,11 @@ const addRole = () => {
             department_id: answers.roledepart
         },
             (err, res) => {
+
             if (err) throw err;
+
             console.log("Role added!");
+
             firstQuestion()
         }) 
 
@@ -202,7 +229,9 @@ const addRole = () => {
 }
 
 const addDepartment = () => {
+
     connection.query('SELECT * FROM employeeDB.department', (err,res) => {
+
         inquirer.prompt([
             {
                 type: 'input',
@@ -211,13 +240,17 @@ const addDepartment = () => {
             }
         ])
         .then((answers)=>{
+
             connection.query ('INSERT INTO department SET ?', 
         {
             department_name: answers.departname
         },
             (err, res) => {
+
             if (err) throw err;
+
             console.log("Department added!");
+
             firstQuestion()
         }) 
 
@@ -251,23 +284,31 @@ function updateEQuestion2 (roles) {
 
 const updateEmployeeRole = () => {
     connection.query ('SELECT employee.id, concat(employee.first_name, " " ,  employee.last_name) AS full_name FROM employee', (err, employees) => {
-    let updateEQ = updateEQuestion1(employees)
+    
+        let updateEQ = updateEQuestion1(employees)
+
         inquirer.prompt(updateEQ)
         .then((answers) => {
+
             let employeeAns = answers 
-            console.log(employeeAns)
+  
             connection.query('SELECT * FROM employeeDB.roles', (err,roles) => {
+
             let updateEQ2 = updateEQuestion2 (roles)
+
             inquirer.prompt(updateEQ2)
             .then((answers)=> {
-                console.log(answers)
+       
                 connection.query('UPDATE employee SET ? WHERE ?', [
                     { roles_id: answers.newrole
                 },{
                     id: employeeAns.employee} ],
+
                 (err,res) => {
                     if (err) throw err;
+
                     console.log('Employee updated!')
+
                     firstQuestion()
                 })
 
@@ -291,14 +332,21 @@ function deleteEmQ(employees){
 
 const deleteEmployee = () => {
     connection.query('SELECT employee.id, concat(employee.first_name, " " ,  employee.last_name) AS full_name FROM employee', (err, employees) => {
+        
         let deleteQ = deleteEmQ(employees)
+
         inquirer.prompt(deleteQ)
+
         .then((answers)=>{
+
             connection.query('DELETE FROM employee WHERE ? ', 
             {id:answers.deleteemp
-            },(err,res) => {
+            },
+            (err,res) => {
                 if (err) throw err;
+
                 console.log('Employee deleted!')
+
                 firstQuestion()
             }
             )
