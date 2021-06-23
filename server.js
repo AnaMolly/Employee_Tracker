@@ -277,6 +277,34 @@ const updateEmployeeRole = () => {
 })
 }
 
+function deleteEmQ(employees){
+    deleteQ = [
+        {
+            type: 'list',
+            message: "Which employee would you like to delete?",
+            name: 'deleteemp',
+            choices: employees.map(employee => ({name:employee.full_name, value:employee.id}))
+        }
+    ]
+    return deleteQ
+}
+
+const deleteEmployee = () => {
+    connection.query('SELECT employee.id, concat(employee.first_name, " " ,  employee.last_name) AS full_name FROM employee', (err, employees) => {
+        let deleteQ = deleteEmQ(employees)
+        inquirer.prompt(deleteQ)
+        .then((answers)=>{
+            connection.query('DELETE FROM employee WHERE ? ', 
+            {id:answers.deleteemp
+            },(err,res) => {
+                if (err) throw err;
+                console.log('Employee deleted!')
+                firstQuestion()
+            }
+            )
+        })
+    })
+}
 
 connection.connect((err) => {
     if (err) throw err;
