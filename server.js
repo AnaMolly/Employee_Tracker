@@ -356,6 +356,6 @@ const deleteEmployee = () => {
 
 connection.connect((err) => {
     if (err) throw err;
-    console.log(`connected as id ${connection.threadId}\n`);
+    console.log(`Welcome to the Employee Tracker!`);
     firstQuestion();
 });
