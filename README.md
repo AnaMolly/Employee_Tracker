@@ -23,6 +23,8 @@
 
   # Usage
   To use the application, run 'node server.js' in ther terminal and answer the prompted questions.
+  
+  View how to use the application here: https://youtu.be/sTZIrWP-zBA
 
   # Tests
   Please refer to the Installation and Usage information above.
